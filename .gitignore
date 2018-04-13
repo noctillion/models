@@ -1,3 +1,6 @@
+# BRAT dataset 
+models/research/deeplab/datasets/brat/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
