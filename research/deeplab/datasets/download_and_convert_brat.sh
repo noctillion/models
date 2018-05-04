@@ -69,7 +69,7 @@ SEG_FOLDER="${BRAT_ROOT}/SegmentationClass"
 SEMANTIC_SEG_FOLDER="${BRAT_ROOT}/SegmentationClassRaw"
 
 echo "Removing the color map in ground truth annotations..."
-python ./remove_gt_colormap.py \
+python ./remove_gt_colormap_brat.py \
   --original_gt_folder="${SEG_FOLDER}" \
   --output_dir="${SEMANTIC_SEG_FOLDER}"
 
