@@ -75,10 +75,8 @@ BRAT_DATASET="${WORK_DIR}/${DATASET_DIR}/${BRAT_FOLDER}/tfrecord"
 NUM_ITERATIONS=100
 python "${WORK_DIR}"/train.py \
   --dataset="brat" \
-  --clone_on_cpu=true \
-  --num_clones=32 \
   --logtostderr \
-  --train_split="trainval" \
+  --train_split="train" \
   --model_variant="xception_65" \
   --atrous_rates=6 \
   --atrous_rates=12 \
@@ -87,18 +85,22 @@ python "${WORK_DIR}"/train.py \
   --decoder_output_stride=4 \
   --train_crop_size=513 \
   --train_crop_size=513 \
-  --train_batch_size=4 \
-  --training_number_of_steps="${NUM_ITERATIONS}" \
+  --train_batch_size=16 \
+  --min_resize_value=320 \
+  --max_resize_value=512 \
+  --resize_factor=16 \
   --fine_tune_batch_norm=true \
-  --initialize_last_layer=false \
-  --last_layer_contain_logits_only=true \
-  --tf_initial_checkpoint="${INIT_FOLDER}/deeplabv3_pascal_train_aug/model.ckpt" \
+  --tf_initial_checkpoint="${INIT_FOLDER}/xception/model.ckpt" \
+  --training_number_of_steps="${NUM_ITERATIONS}" \
   --train_logdir="${TRAIN_LOGDIR}" \
+  --save_summaries_images=true \
   --dataset_dir="${BRAT_DATASET}"
 
-#  --base_learning_rate=0.00005 \
+#  --base_learning_rate=0.0000005 \
+#  --initialize_last_layer=false \
+#  --last_layer_contain_logits_only=true \
+#  --tf_initial_checkpoint="${INIT_FOLDER}/deeplabv3_pascal_train_aug/model.ckpt" \
 #  --weight_decay=1.0 \
-#  --tf_initial_checkpoint="${INIT_FOLDER}/xception/model.ckpt" \
 
 # Run evaluation. This performs eval over the full val split (998 images) and
 # will take a while.
@@ -112,12 +114,15 @@ python "${WORK_DIR}"/eval.py \
   --atrous_rates=18 \
   --output_stride=16 \
   --decoder_output_stride=4 \
+  --eval_scales=1.0 \
   --eval_crop_size=1001 \
   --eval_crop_size=1428 \
   --checkpoint_dir="${TRAIN_LOGDIR}" \
   --eval_logdir="${EVAL_LOGDIR}" \
   --dataset_dir="${BRAT_DATASET}" \
   --max_number_of_evaluations=1
+
+#  --labels_offset=1 \
 
 # Visualize the results.
 python "${WORK_DIR}"/vis.py \
@@ -135,6 +140,7 @@ python "${WORK_DIR}"/vis.py \
   --checkpoint_dir="${TRAIN_LOGDIR}" \
   --vis_logdir="${VIS_LOGDIR}" \
   --dataset_dir="${BRAT_DATASET}" \
+  --also_save_raw_predictions=true \
   --max_number_of_iterations=1
 
 # Export the trained checkpoint.
