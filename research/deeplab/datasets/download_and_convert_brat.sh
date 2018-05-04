@@ -24,10 +24,11 @@
 #     - build_data.py
 #     - build_brat_data.py
 #     - download_and_convert_brat.sh
-#     - remove_gt_colormap.py
+#     - remove_gt_colormap_brat.py
 #     + brat
 #       + BRATset
 #         + deepBRAT
+#           + PNGImages
 #           + JPEGImages
 #           + SegmentationClass
 #
@@ -40,24 +41,24 @@ WORK_DIR="./brat"
 mkdir -p "${WORK_DIR}"
 cd "${WORK_DIR}"
 
-# Helper function to download and unpack BRAT dataset. ##ToDo
-#download_and_uncompress() {
-#  local BASE_URL=${1}
-#  local FILENAME=${2}
-#
-#  if [ ! -f "${FILENAME}" ]; then
-#    echo "Downloading ${FILENAME} to ${WORK_DIR}"
-#    wget -nd -c "${BASE_URL}/${FILENAME}"
-#  fi
-#  echo "Uncompressing ${FILENAME}"
-#  tar -xf "${FILENAME}"
-#}
+# Helper function to download and unpack BRAT dataset.
+download_and_uncompress() {
+  local BASE_URL=${1}
+  local FILENAME=${2}
+
+  if [ ! -f "${FILENAME}" ]; then
+    echo "Downloading ${FILENAME} to ${WORK_DIR}"
+    wget -nd -c "${BASE_URL}/${FILENAME}"
+  fi
+  echo "Uncompressing ${FILENAME}"
+  tar -xf "${FILENAME}"
+}
 
 # Download the images.
-#BASE_URL="http://host.robots.ox.ac.uk/pascal/VOC/voc2012/"
-#FILENAME="VOCtrainval_11-May-2012.tar"
+BASE_URL="http://homepage.univie.ac.at/huetherp88/"
+FILENAME="BRAT_TrainingSet.tar.gz"
 
-#download_and_uncompress "${BASE_URL}" "${FILENAME}"
+download_and_uncompress "${BASE_URL}" "${FILENAME}"
 
 cd "${CURRENT_DIR}"
 
