@@ -99,7 +99,7 @@ _BRAT_INFORMATION = DatasetDescriptor(
         'trainval': 998,
         'val': 200,
     },
-    num_classes=3,
+    num_classes=4,
     ignore_label=255,
 )
 
