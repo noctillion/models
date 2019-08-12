@@ -151,7 +151,7 @@ python "${WORK_DIR}"/vis.py \
   --atrous_rates=12 \
   --atrous_rates=24 \
   --atrous_rates=36 \
-  --output_stride=12 \
+  --output_stride=8 \
   --vis_crop_size="537,561" \
   --decoder_output_stride=4 \
   --checkpoint_dir="${TRAIN_LOGDIR}" \
