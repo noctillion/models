@@ -85,8 +85,7 @@ python "${WORK_DIR}"/train.py \
   --atrous_rates=12 \
   --atrous_rates=18 \
   --output_stride=16 \
-  --train_crop_size=537 \
-  --train_crop_size=561 \
+  --train_crop_size="537,561" \
   --train_batch_size=24 \
   --fine_tune_batch_norm=true \
   --tf_initial_checkpoint="${INIT_FOLDER}/deeplabv3_pascal_train_aug/model.ckpt" \
@@ -130,8 +129,7 @@ python "${WORK_DIR}"/eval.py \
   --atrous_rates=36 \
   --output_stride=8 \
   --decoder_output_stride=4 \
-  --eval_crop_size=537 \
-  --eval_crop_size=561 \
+  --eval_crop_size="537,561" \
   --add_flipped_images=True \
   --checkpoint_dir="${TRAIN_LOGDIR}" \
   --eval_logdir="${EVAL_LOGDIR}" \
@@ -151,8 +149,7 @@ python "${WORK_DIR}"/vis.py \
   --atrous_rates=24 \
   --atrous_rates=36 \
   --output_stride=12 \
-  --vis_crop_size=537 \
-  --vis_crop_size=561 \
+  --vis_crop_size="537,561" \
   --decoder_output_stride=4 \
   --checkpoint_dir="${TRAIN_LOGDIR}" \
   --vis_logdir="${VIS_LOGDIR}" \

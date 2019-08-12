@@ -15,7 +15,7 @@
 """Utility functions for training."""
 
 import six
-from deeplab.model import _LOGITS_SCOPE_NAME
+from deeplab.model import LOGITS_SCOPE_NAME
 
 import tensorflow as tf
 from deeplab.core import preprocess_utils
@@ -158,7 +158,7 @@ def get_model_init_fn(train_logdir,
 
   # Variables that will not be restored.
   exclude_list = ['global_step']
-  exclude_list.extend(_LOGITS_SCOPE_NAME)
+  exclude_list.extend(LOGITS_SCOPE_NAME)
 
   if not initialize_last_layer:
     exclude_list.extend(last_layers)
