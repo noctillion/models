@@ -47,7 +47,7 @@ flags.DEFINE_integer('output_stride', 8,
                      'The ratio of input to output spatial resolution.')
 
 # Change to [0.5, 0.75, 1.0, 1.25, 1.5, 1.75] for multi-scale inference.
-flags.DEFINE_multi_float('inference_scales', [1.0],
+flags.DEFINE_multi_float('inference_scales', [0.5, 0.75, 1.0, 1.25, 1.5, 1.75],
                          'The scales to resize images for inference.')
 
 flags.DEFINE_bool('add_flipped_images', False,
