@@ -1,6 +1,5 @@
 [MESSAGES CONTROL]
-disable=R,W,
-        bad-option-value
+disable=R,W,bad-option-value,trailing-newlines
 
 [REPORTS]
 # Tells whether to display a full report or only the messages
@@ -61,7 +60,7 @@ variable-rgx=^[a-z][a-z0-9_]*$
 # (useful for modules/projects where namespaces are manipulated during runtime
 # and thus existing member attributes cannot be deduced by static analysis. It
 # supports qualified module names, as well as Unix pattern matching.
-ignored-modules=official, official.*, tensorflow, tensorflow.*, LazyLoader, google, google.cloud.*
+ignored-modules=absl, absl.*, official, official.*, tensorflow, tensorflow.*, LazyLoader, google, google.cloud.*
 
 
 [CLASSES]
@@ -145,6 +144,10 @@ no-space-check=
 # Allow the body of an if to be on the same line as the test if there is no
 # else.
 single-line-if-stmt=yes
+
+# Allow URLs and comment type annotations to exceed the max line length as neither can be easily
+# split across lines.
+ignore-long-lines=^\s*(?:(# )?<?https?://\S+>?$|# type:)
 
 
 [VARIABLES]

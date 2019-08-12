@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 #
-# Script to download and preprocess the PASCAL VOC 2012 dataset.
+# Script to download and preprocess the ADE20K dataset.
 #
 # Usage:
 #   bash ./download_and_convert_ade20k.sh
@@ -24,7 +24,7 @@
 #     - build_data.py
 #     - build_ade20k_data.py
 #     - download_and_convert_ade20k.sh
-#     + ADE20K 
+#     + ADE20K
 #       + tfrecord
 #       + ADEChallengeData2016
 #         + annotations
