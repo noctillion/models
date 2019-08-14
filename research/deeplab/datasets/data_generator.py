@@ -102,6 +102,7 @@ _ROSETTE_INFORMATION = DatasetDescriptor(
         'train': 125,
         'trainval': 152,
         'val': 27,
+	'test': 148796,
     },
     num_classes=3,
     ignore_label=255,
@@ -290,7 +291,12 @@ class Dataset(object):
       ValueError: Ground truth label not provided during training.
     """
     image = sample[common.IMAGE]
-    label = sample[common.LABELS_CLASS]
+    try:
+       sample[common.LABELS_CLASS]
+    except KeyError:
+       label = None
+    else:
+       label = sample[common.LABELS_CLASS]
 
     original_image, image, label = input_preprocess.preprocess_image_and_label(
         image=image,
