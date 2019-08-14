@@ -22,6 +22,7 @@ import numpy as np
 import PIL.Image as img
 import tensorflow as tf
 
+from skimage.morphology import convex_hull_image
 from deeplab.utils import get_dataset_colormap
 
 
@@ -29,6 +30,7 @@ def count_pixels(label,
                     save_dir,
                     filename,
                     add_colormap=True,
+		    convex_hull=False,
 		    save_prediction=False,
                     normalize_to_unit_values=False,
                     scale_values=False,
@@ -41,7 +43,8 @@ def count_pixels(label,
     save_dir: String, the directory to which the results will be saved.
     filename: String, the image filename.
     add_colormap: Boolean, add color map to the label or not.
-    save_prediction: Boolean, save the resulting prediction to disk,
+    save_prediction: Boolean, save the resulting prediction (and corresponding convex_hull) to disk,
+    convex_hull: Boolean, calculate the convex hull area of the segmentation mask,
     normalize_to_unit_values: Boolean, normalize the input values to [0, 1].
     scale_values: Boolean, scale the input values to [0, 255] for visualization.
     colormap_type: String, colormap type for visualization.
@@ -62,14 +65,25 @@ def count_pixels(label,
     if scale_values:
       colored_label = 255. * colored_label
 
+  frame = {'file' : filename + '.png', 'total_pixels' : label.size}
+
+  if convex_hull:
+    hull = convex_hull_image(label)
+    hull_area = np.count_nonzero(hull)
+    frame['convex_hull_area'] = hull_area
+    if save_prediction:
+      hull_image = img.fromarray(hull.astype(dtype=np.uint8)*255)
+      with tf.gfile.Open('%s/%s_convex_hull.png' % (save_dir, filename), mode='w') as hull_prediction:
+        hull_image.save(hull_prediction, 'PNG')
+
   if save_prediction:
     pil_image = img.fromarray(colored_label.astype(dtype=np.uint8))
     with tf.gfile.Open('%s/%s.png' % (save_dir, filename), mode='w') as f:
       pil_image.save(f, 'PNG')
 
+
   # TODO: don't hardcode label names
   LABEL_NAMES = np.asarray(['background', 'rosette'])
-  frame = {'file' : filename + '.png', 'total_pixels' : label.size}
   # iterate over label names and count pixels for each class 
   for idx,labelclass in enumerate(LABEL_NAMES):
     count = np.count_nonzero(label == idx)
