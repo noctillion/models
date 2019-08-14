@@ -37,7 +37,7 @@ CURRENT_DIR=$(pwd)
 WORK_DIR="${CURRENT_DIR}/deeplab"
 
 # Run model_test first to make sure the PYTHONPATH is correctly set.
-python "${WORK_DIR}"/model_test.py -v
+python "${WORK_DIR}"/model_test.py #-v
 
 # Go to datasets folder and download ROSETTE segmentation dataset.
 DATASET_DIR="datasets"
@@ -76,7 +76,7 @@ cd "${CURRENT_DIR}"
 ROSETTE_DATASET="${WORK_DIR}/${DATASET_DIR}/${ROSETTE_FOLDER}/tfrecord"
 
 # Train 10 iterations.
-NUM_ITERATIONS=5000
+NUM_ITERATIONS=20000
 python "${WORK_DIR}"/train.py \
   --dataset="ara_rosettes" \
   --logtostderr \
@@ -87,19 +87,23 @@ python "${WORK_DIR}"/train.py \
   --atrous_rates=12 \
   --atrous_rates=18 \
   --output_stride=16 \
-  --train_crop_size="537,561" \
-  --train_batch_size=12 \
+  --train_crop_size="501,501" \
+  --train_batch_size=64 \
   --fine_tune_batch_norm=true \
   --tf_initial_checkpoint="${INIT_FOLDER}/xception/model.ckpt" \
   --training_number_of_steps="${NUM_ITERATIONS}" \
   --train_logdir="${TRAIN_LOGDIR}" \
   --base_learning_rate=0.007 \
-  --num_clones=1 \
+  --num_clones=4 \
   --save_summaries_images=true \
   --initialize_last_layer=false \
   --last_layer_contain_logits_only=true \
   --dataset_dir="${ROSETTE_DATASET}"
 
+#  --last_layer_gradient_multiplier=10 \
+#  --train_crop_size="537,561" \
+#  --train_crop_size="321,321" \
+#  --train_crop_size="537,561" \
 #  --base_learning_rate=0.0004 \
 #  --num_clones=1 \
 #  --atrous_rates=6 \
