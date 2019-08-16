@@ -22,7 +22,7 @@ import numpy as np
 import PIL.Image as img
 import tensorflow as tf
 
-from skimage.morphology import convex_hull_image
+from skimage.measure import regionprops
 from deeplab.utils import get_dataset_colormap
 
 
@@ -30,12 +30,12 @@ def count_pixels(label,
                     save_dir,
                     filename,
                     add_colormap=True,
-		    convex_hull=False,
-		    save_prediction=False,
+		                regionprops=False,
+		                save_prediction=False,
                     normalize_to_unit_values=False,
                     scale_values=False,
                     colormap_type=get_dataset_colormap.get_pascal_name()):
-  """Counts pixels of all classes and optionallySaves the given label to image on disk.
+  """Counts pixels of all classes and optionally saves the given label to image on disk.
 
   Args:
     label: The numpy array to be saved. The data will be converted
@@ -43,8 +43,8 @@ def count_pixels(label,
     save_dir: String, the directory to which the results will be saved.
     filename: String, the image filename.
     add_colormap: Boolean, add color map to the label or not.
-    save_prediction: Boolean, save the resulting prediction (and corresponding convex_hull) to disk,
-    convex_hull: Boolean, calculate the convex hull area of the segmentation mask,
+    save_prediction: Boolean, save the resulting prediction to disk.
+    regionprops: Boolean, calculate various region properties (see: https://scikit-image.org/docs/dev/api/skimage.measure.html#skimage.measure.regionprops).
     normalize_to_unit_values: Boolean, normalize the input values to [0, 1].
     scale_values: Boolean, scale the input values to [0, 255] for visualization.
     colormap_type: String, colormap type for visualization.
@@ -66,15 +66,11 @@ def count_pixels(label,
       colored_label = 255. * colored_label
 
   frame = {'file' : filename + '.png', 'total_pixels' : label.size}
-
-  if convex_hull:
-    hull = convex_hull_image(label)
-    hull_area = np.count_nonzero(hull)
-    frame['convex_hull_area'] = hull_area
-    if save_prediction:
-      hull_image = img.fromarray(hull.astype(dtype=np.uint8)*255)
-      with tf.gfile.Open('%s/%s_convex_hull.png' % (save_dir, filename), mode='w') as hull_prediction:
-        hull_image.save(hull_prediction, 'PNG')
+  if regionprops:
+    traits =  np.asarray(['filled_area','convex_area',"equivalent_diameter","major_axis_length","minor_axis_length","perimeter","eccentricity","extent","solidity"])
+    properties = regionprops(label)
+    for trait in traits:
+      frame[trait] = properties[0][trait]
 
   if save_prediction:
     pil_image = img.fromarray(colored_label.astype(dtype=np.uint8))

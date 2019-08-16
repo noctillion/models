@@ -140,14 +140,14 @@ def _process_batch(sess, original_images, semantic_predictions, image_names,
     line = count_pixels.count_pixels(
         crop_semantic_prediction, save_dir,
         "%s" % image_names[i].decode('utf-8'), add_colormap=True, save_prediction=True,
-	convex_hull=True,colormap_type=FLAGS.colormap_type)
+	      regionprops=True,colormap_type=FLAGS.colormap_type)
 
     # write pixel counts to tsv file   
     with open(save_dir + '/pixel_counts.csv', 'a') as counts:
       Writer = csv.DictWriter(counts, delimiter=' ', fieldnames=line.keys())
       if not counts.tell():
         Writer.writeheader() 
-      Writer.writerow(line)
+        Writer.writerow(line)
 
 def main(unused_argv):
   tf.logging.set_verbosity(tf.logging.INFO)
