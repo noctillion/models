@@ -138,9 +138,9 @@ def _process_batch(sess, original_images, semantic_predictions, image_names,
 #        colormap_type=FLAGS.colormap_type)
 
     line = count_pixels.count_pixels(
-        crop_semantic_prediction, save_dir,
+        crop_semantic_prediction, original_image, save_dir,
         "%s" % image_names[i].decode('utf-8'), add_colormap=True, save_prediction=True,
-	      regionprops=True,colormap_type=FLAGS.colormap_type)
+	      regionprops=True, channelstats=True, colormap_type=FLAGS.colormap_type)
 
     # write pixel counts to tsv file   
     with open(save_dir + '/pixel_counts.csv', 'a') as counts:
