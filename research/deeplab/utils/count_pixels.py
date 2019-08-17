@@ -31,7 +31,7 @@ def count_pixels(label,
                     save_dir,
                     filename,
                     add_colormap=True,
-		                regionprops=False,
+		                get_regionprops=False,
 		                channelstats=False,
 		                save_prediction=False,
                     normalize_to_unit_values=False,
@@ -47,7 +47,7 @@ def count_pixels(label,
     filename: String, the image filename.
     add_colormap: Boolean, add color map to the label or not.
     save_prediction: Boolean, save the resulting prediction to disk.
-    regionprops: Boolean, calculate various region properties (see: https://scikit-image.org/docs/dev/api/skimage.measure.html#skimage.measure.regionprops).
+    get_regionprops: Boolean, calculate various region properties (see: https://scikit-image.org/docs/dev/api/skimage.measure.html#skimage.measure.regionprops).
     channelstats: Boolean, calculate channel means in original image within the label mask.
     normalize_to_unit_values: Boolean, normalize the input values to [0, 1].
     scale_values: Boolean, scale the input values to [0, 255] for visualization.
@@ -71,14 +71,23 @@ def count_pixels(label,
 
   frame = {'file' : filename + '.png', 'total_pixels' : label.size}
 
+  # TODO: don't hardcode label names
+  LABEL_NAMES = np.asarray(['background', 'rosette'])
+  # iterate over label names and count pixels for each class 
+  for idx,labelclass in enumerate(LABEL_NAMES):
+    count = np.count_nonzero(label == idx)
+    frame[labelclass] = count
+
   if channelstats:
-    assert image.shape == label.shape
     org = Image.fromarray(image.astype(dtype=np.uint8))
-    stat = ImageStat.Stat(org, mask=label)
+    mask = Image.fromarray(label.astype(dtype=np.uint8))
+    stat = ImageStat.Stat(org, mask=mask)
 
     bands = np.asarray(['red', 'green','blue'])
     for idx,band in enumerate(bands):
-      frame[band + "_mean"] = stat.mean[idx]      
+      frame[band + "_mean_within_mask"] = stat.mean[idx]
+      frame[band + "_median_within_mask"] = stat.median[idx]
+      frame[band + "_sum_within_mask"] = stat.sum[idx]
     
   if regionprops:
     traits =  np.asarray(['filled_area','convex_area',"equivalent_diameter","major_axis_length","minor_axis_length","perimeter","eccentricity","extent","solidity"])
@@ -91,11 +100,4 @@ def count_pixels(label,
     with tf.gfile.Open('%s/%s.png' % (save_dir, filename), mode='w') as f:
       pil_image.save(f, 'PNG')
 
-
-  # TODO: don't hardcode label names
-  LABEL_NAMES = np.asarray(['background', 'rosette'])
-  # iterate over label names and count pixels for each class 
-  for idx,labelclass in enumerate(LABEL_NAMES):
-    count = np.count_nonzero(label == idx)
-    frame[labelclass] = count
   return frame
