@@ -18,11 +18,12 @@ This script saves an annotation as one png image, and has the option to add
 colormap to the png image for better visualization.
 """
 
+import csv
 import numpy as np
 from PIL import Image,ImageStat
+from skimage import measure
 import tensorflow as tf
 
-from skimage.measure import regionprops
 from deeplab.utils import get_dataset_colormap
 
 
@@ -85,19 +86,33 @@ def count_pixels(label,
 
     bands = np.asarray(['red', 'green','blue'])
     for idx,band in enumerate(bands):
-      frame[band + "_mean_within_mask"] = stat.mean[idx]
-      frame[band + "_median_within_mask"] = stat.median[idx]
       frame[band + "_sum_within_mask"] = stat.sum[idx]
+      if stat.count[idx] != 0:
+        frame[band + "_mean_within_mask"] = stat.mean[idx]
+      else:
+        frame[band + "_mean_within_mask"] = 'NA'
+      frame[band + "_median_within_mask"] = stat.median[idx]
     
-  if regionprops:
-    traits =  np.asarray(['filled_area','convex_area',"equivalent_diameter","major_axis_length","minor_axis_length","perimeter","eccentricity","extent","solidity"])
-    properties = regionprops(label)
+  if get_regionprops:
+    traits = np.asarray(['filled_area','convex_area',"equivalent_diameter","major_axis_length","minor_axis_length","perimeter","eccentricity","extent","solidity"])
+    properties = measure.regionprops(label)
     for trait in traits:
-      frame[trait] = properties[0][trait]
+      if len(properties) == 1:
+        frame[trait] = properties[0][trait]
+      else:
+        frame[trait] = 'NA' 
 
   if save_prediction:
     pil_image = Image.fromarray(colored_label.astype(dtype=np.uint8))
     with tf.gfile.Open('%s/%s.png' % (save_dir, filename), mode='w') as f:
       pil_image.save(f, 'PNG')
+
+
+    # write pixel counts to tsv file
+  with open(save_dir + '/pixel_counts.tsv', 'a') as counts:
+    Writer = csv.DictWriter(counts, delimiter=' ', fieldnames=frame.keys())
+    if not counts.tell():
+      Writer.writeheader()
+    Writer.writerow(frame)
 
   return frame
