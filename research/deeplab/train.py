@@ -454,7 +454,7 @@ def main(unused_argv):
           max_scale_factor=FLAGS.max_scale_factor,
           scale_factor_step_size=FLAGS.scale_factor_step_size,
           model_variant=FLAGS.model_variant,
-          num_readers=2,
+          num_readers=4,
           is_training=True,
           should_shuffle=True,
           should_repeat=True)
