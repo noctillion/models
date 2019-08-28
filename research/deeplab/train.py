@@ -434,77 +434,89 @@ def main(unused_argv):
   tf.gfile.MakeDirs(FLAGS.train_logdir)
   tf.logging.info('Training on %s set', FLAGS.train_split)
 
-  graph = tf.Graph()
-  with graph.as_default():
-    with tf.device(tf.train.replica_device_setter(ps_tasks=FLAGS.num_ps_tasks)):
-      assert FLAGS.train_batch_size % FLAGS.num_clones == 0, (
-          'Training batch size not divisble by number of clones (GPUs).')
-      clone_batch_size = FLAGS.train_batch_size // FLAGS.num_clones
+  # Soft placement allows placing on CPU ops without GPU implementation.
+  session_config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=False)
 
-      dataset = data_generator.Dataset(
-          dataset_name=FLAGS.dataset,
-          split_name=FLAGS.train_split,
-          dataset_dir=FLAGS.dataset_dir,
-          batch_size=clone_batch_size,
-          crop_size=[int(sz) for sz in FLAGS.train_crop_size],
-          min_resize_value=FLAGS.min_resize_value,
-          max_resize_value=FLAGS.max_resize_value,
-          resize_factor=FLAGS.resize_factor,
-          min_scale_factor=FLAGS.min_scale_factor,
-          max_scale_factor=FLAGS.max_scale_factor,
-          scale_factor_step_size=FLAGS.scale_factor_step_size,
-          model_variant=FLAGS.model_variant,
-          num_readers=4,
-          is_training=True,
-          should_shuffle=True,
-          should_repeat=True)
+  slurm = tf.distribute.cluster_resolver.SlurmClusterResolver(jobs={"ps":FLAGS.num_ps_tasks, "worker":FLAGS.num_replicas}, port_base=2222, gpus_per_node=4, gpus_per_task=4)
+  cluster_spec = slurm.cluster_spec()
+  print(cluster_spec)
+  job_name, task_id = slurm.get_task_info()
 
-      train_tensor, summary_op = _train_deeplab_model(
-          dataset.get_one_shot_iterator(), dataset.num_of_classes,
-          dataset.ignore_label)
+  server = tf.train.Server(server_or_cluster_def=cluster_spec,
+		           config=session_config,
+                           job_name=job_name,
+                           task_index=task_id)
 
-      # Soft placement allows placing on CPU ops without GPU implementation.
-      session_config = tf.ConfigProto(
-          allow_soft_placement=True, log_device_placement=False)
+  if job_name == "ps":
+    server.join()
+  elif job_name == "worker":
+    graph = tf.Graph()
+    with graph.as_default():
+      with tf.device(tf.train.replica_device_setter(worker_device="/job:worker/task:%d" % task_id, cluster=cluster_spec)):
+        assert FLAGS.train_batch_size % FLAGS.num_clones == 0, (
+            'Training batch size not divisble by number of clones (GPUs).')
+        clone_batch_size = FLAGS.train_batch_size // FLAGS.num_clones
 
-      last_layers = model.get_extra_layer_scopes(
-          FLAGS.last_layers_contain_logits_only)
-      init_fn = None
-      if FLAGS.tf_initial_checkpoint:
-        init_fn = train_utils.get_model_init_fn(
+        dataset = data_generator.Dataset(
+            dataset_name=FLAGS.dataset,
+            split_name=FLAGS.train_split,
+            dataset_dir=FLAGS.dataset_dir,
+            batch_size=clone_batch_size,
+            crop_size=[int(sz) for sz in FLAGS.train_crop_size],
+            min_resize_value=FLAGS.min_resize_value,
+            max_resize_value=FLAGS.max_resize_value,
+            resize_factor=FLAGS.resize_factor,
+            min_scale_factor=FLAGS.min_scale_factor,
+            max_scale_factor=FLAGS.max_scale_factor,
+            scale_factor_step_size=FLAGS.scale_factor_step_size,
+            model_variant=FLAGS.model_variant,
+            num_readers=4,
+            is_training=True,
+            should_shuffle=True,
+            should_repeat=True)
+
+        train_tensor, summary_op = _train_deeplab_model(
+            dataset.get_one_shot_iterator(), dataset.num_of_classes,
+            dataset.ignore_label)
+
+        last_layers = model.get_extra_layer_scopes(
+            FLAGS.last_layers_contain_logits_only)
+        init_fn = None
+        if FLAGS.tf_initial_checkpoint:
+          init_fn = train_utils.get_model_init_fn(
             FLAGS.train_logdir,
             FLAGS.tf_initial_checkpoint,
             FLAGS.initialize_last_layer,
             last_layers,
             ignore_missing_vars=True)
 
-      scaffold = tf.train.Scaffold(
+        scaffold = tf.train.Scaffold(
           init_fn=init_fn,
           summary_op=summary_op,
-      )
+        )
 
-      stop_hook = tf.train.StopAtStepHook(
-          last_step=FLAGS.training_number_of_steps)
+        stop_hook = tf.train.StopAtStepHook(
+            last_step=FLAGS.training_number_of_steps)
 
-      profile_dir = FLAGS.profile_logdir
-      if profile_dir is not None:
-        tf.gfile.MakeDirs(profile_dir)
+        profile_dir = FLAGS.profile_logdir
+        if profile_dir is not None:
+          tf.gfile.MakeDirs(profile_dir)
 
-      with tf.contrib.tfprof.ProfileContext(
-          enabled=profile_dir is not None, profile_dir=profile_dir):
-        with tf.train.MonitoredTrainingSession(
-            master=FLAGS.master,
-            is_chief=(FLAGS.task == 0),
-            config=session_config,
-            scaffold=scaffold,
-            checkpoint_dir=FLAGS.train_logdir,
-            summary_dir=FLAGS.train_logdir,
-            log_step_count_steps=FLAGS.log_steps,
-            save_summaries_steps=FLAGS.save_summaries_secs,
-            save_checkpoint_secs=FLAGS.save_interval_secs,
-            hooks=[stop_hook]) as sess:
-          while not sess.should_stop():
-            sess.run([train_tensor])
+        with tf.contrib.tfprof.ProfileContext(
+            enabled=profile_dir is not None, profile_dir=profile_dir):
+          with tf.train.MonitoredTrainingSession(
+              master=server.target,
+              is_chief=(task_id == 0),
+              config=session_config,
+              scaffold=scaffold,
+              checkpoint_dir=FLAGS.train_logdir,
+              summary_dir=FLAGS.train_logdir,
+              log_step_count_steps=FLAGS.log_steps,
+              save_summaries_steps=FLAGS.save_summaries_secs,
+              save_checkpoint_secs=FLAGS.save_interval_secs,
+              hooks=[stop_hook]) as sess:
+            while not sess.should_stop():
+              sess.run([train_tensor])
 
 
 if __name__ == '__main__':
