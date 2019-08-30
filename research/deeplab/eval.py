@@ -142,16 +142,22 @@ def main(unused_argv):
     labels = tf.where(
         tf.equal(labels, dataset.ignore_label), tf.zeros_like(labels), labels)
 
-    predictions_tag = 'miou'
-    for eval_scale in FLAGS.eval_scales:
-      predictions_tag += '_' + str(eval_scale)
-    if FLAGS.add_flipped_images:
-      predictions_tag += '_flipped'
+    metrics, update_op = tf.contrib.metrics.aggregate_metric_map({
+    "accuracy": tf.metrics.accuracy(labels, predictions, weights=weights),
+    "miou": tf.metrics.mean_iou(predictions, labels, dataset.num_of_classes, weights=weights),
+    "false_positives": tf.metrics.false_positives(labels, predictions, weights=weights),
+    "false_negatives": tf.metrics.false_negatives(labels, predictions, weights=weights),
+    "true_positives": tf.metrics.true_positives(labels, predictions, weights=weights),
+    "true_negatives": tf.metrics.true_negatives(labels, predictions, weights=weights),
+    "mpca": tf.metrics.mean_per_class_accuracy(predictions, labels, dataset.num_of_classes, weights=weights)})
 
-    # Define the evaluation metric.
-    miou, update_op = tf.metrics.mean_iou(
-        predictions, labels, dataset.num_of_classes, weights=weights)
-    tf.summary.scalar(predictions_tag, miou)
+    for eval_scale in FLAGS.eval_scales:
+      metrics = {f'{k}_'+ str(eval_scale): v for k, v in metrics.items()}
+    if FLAGS.add_flipped_images:
+      metrics = {f'{k}_flipped': v for k, v in metrics.items()} 
+
+    for metric_tag, metric_value in metrics.items():
+       tf.summary.scalar(metric_tag, metric_value)
 
     summary_op = tf.summary.merge_all()
     summary_hook = tf.contrib.training.SummaryAtEndHook(
