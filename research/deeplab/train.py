@@ -142,6 +142,9 @@ flags.DEFINE_integer('slow_start_step', 0,
 flags.DEFINE_float('slow_start_learning_rate', 1e-4,
                    'Learning rate employed during slow start.')
 
+flags.DEFINE_enum('slow_start_burnin_type', 'none', ['none', 'linear'],
+                   'Type of learning rate warmup')
+
 # Set to True if one wants to fine-tune the batch norm parameters in DeepLabv3.
 # Set to False and use small batch size to save GPU memory.
 flags.DEFINE_boolean('fine_tune_batch_norm', True,
@@ -353,7 +356,7 @@ def _train_deeplab_model(iterator, num_of_classes, ignore_label):
       FLAGS.learning_policy, FLAGS.base_learning_rate,
       FLAGS.learning_rate_decay_step, FLAGS.learning_rate_decay_factor,
       FLAGS.training_number_of_steps, FLAGS.learning_power,
-      FLAGS.slow_start_step, FLAGS.slow_start_learning_rate)
+      FLAGS.slow_start_step, FLAGS.slow_start_learning_rate, FLAGS.slow_start_burnin_type)
   tf.summary.scalar('learning_rate', learning_rate)
 
   optimizer = tf.train.MomentumOptimizer(learning_rate, FLAGS.momentum)
