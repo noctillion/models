@@ -229,7 +229,7 @@ def get_model_learning_rate(learning_policy,
   """Gets model's learning rate.
 
   Computes the model's learning rate for different learning policy.
-  Right now, only "step" , "poly" and "cos" are supported.
+  Right now, only "step", "poly" and "cos" are supported.
   (1) The learning policy for "step" is computed as follows:
     current_learning_rate = base_learning_rate *
       learning_rate_decay_factor ^ (global_step / learning_rate_decay_step)
@@ -287,6 +287,14 @@ def get_model_learning_rate(learning_policy,
         base_learning_rate,
         adjusted_global_step,
         training_number_of_steps,
+	alpha=0)
+  elif learning_policy == 'cos_warmstart':
+    learning_rate = tf.train.cosine_decay_restarts(
+        base_learning_rate,
+        adjusted_global_step,
+	first_decay_steps=(training_number_of_steps / 10),
+	t_mul=2.0,
+        m_mul=1.0,
 	alpha=0)
   else:
     raise ValueError('Unknown learning policy.')

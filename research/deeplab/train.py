@@ -74,7 +74,7 @@ flags.DEFINE_string('profile_logdir', None,
 
 # Settings for training strategy.
 
-flags.DEFINE_enum('learning_policy', 'poly', ['poly', 'step', 'cos'],
+flags.DEFINE_enum('learning_policy', 'poly', ['poly', 'step', 'cos', 'cos_warmstart'],
                   'Learning rate policy for training.')
 
 # Use 0.007 when training on PASCAL augmented training set, train_aug. When
