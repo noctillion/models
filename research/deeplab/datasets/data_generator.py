@@ -99,10 +99,21 @@ _ADE20K_INFORMATION = DatasetDescriptor(
 
 _ROSETTE_INFORMATION = DatasetDescriptor(
     splits_to_sizes={
-        'train': 125,
-        'trainval': 152,
-        'val': 27,
+        'train': 240,
+        'trainval': 300,
+        'val': 60,
 	'test': 148796,
+#	'test': 28,
+    },
+    num_classes=3,
+    ignore_label=255,
+)
+
+_BRAT_INFORMATION = DatasetDescriptor(
+    splits_to_sizes={
+        'train': 600,
+        'trainval': 749,
+        'val': 149,
     },
     num_classes=3,
     ignore_label=255,
@@ -113,6 +124,7 @@ _DATASETS_INFORMATION = {
     'pascal_voc_seg': _PASCAL_VOC_SEG_INFORMATION,
     'ade20k': _ADE20K_INFORMATION,
     'ara_rosettes': _ROSETTE_INFORMATION,
+    'BRATset': _BRAT_INFORMATION,
 }
 
 # Default file pattern of TFRecord of TensorFlow Example.

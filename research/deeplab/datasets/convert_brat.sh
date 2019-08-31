@@ -37,33 +37,13 @@
 set -e
 
 CURRENT_DIR=$(pwd)
-WORK_DIR="./brat"
+WORK_DIR="./BRATset"
 mkdir -p "${WORK_DIR}"
-cd "${WORK_DIR}"
-
-# Helper function to download and unpack BRAT dataset.
-download_and_uncompress() {
-  local BASE_URL=${1}
-  local FILENAME=${2}
-
-  if [ ! -f "${FILENAME}" ]; then
-    echo "Downloading ${FILENAME} to ${WORK_DIR}"
-    wget -nd -c "${BASE_URL}/${FILENAME}"
-  fi
-  echo "Uncompressing ${FILENAME}"
-  tar -xf "${FILENAME}"
-}
-
-# Download the images.
-BASE_URL="http://homepage.univie.ac.at/huetherp88/"
-FILENAME="BRAT_TrainingSet.tar.gz"
-
-download_and_uncompress "${BASE_URL}" "${FILENAME}"
 
 cd "${CURRENT_DIR}"
 
 # Root path for BRAT dataset.
-BRAT_ROOT="${WORK_DIR}/BRATset/deepBRAT"
+BRAT_ROOT="${WORK_DIR}/deepBRAT"
 
 # Remove the colormap in the ground truth annotations.
 SEG_FOLDER="${BRAT_ROOT}/SegmentationClass"

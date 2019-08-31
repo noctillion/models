@@ -1,5 +1,7 @@
 # rosette dataset
 research/deeplab/datasets/ara_rosetteSet
+# BRAT dataset
+research/deeplab/datasets/BRATset
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
