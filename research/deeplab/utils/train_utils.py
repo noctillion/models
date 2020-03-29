@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+# Modifications Copyright 2020 Patrick Hüther (patrick.huether@gmi.oeaw.ac.at)
+# - added logits to variables that will not be restored
+# - added code to decay lr with cosine function with optional restarts
+# - added code to configure lr warmup
+
 """Utility functions for training."""
 
 import six

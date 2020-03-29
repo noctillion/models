@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+# Modifications Copyright 2020 Patrick Hüther (patrick.huether@gmi.oeaw.ac.at)
+# - added additional datasets for segmentation of plant images
 """Wrapper for providing semantic segmentaion data.
 
 The SegmentationDataset class provides both images and annotations (semantic
@@ -96,26 +98,33 @@ _ADE20K_INFORMATION = DatasetDescriptor(
     ignore_label=0,
 )
 
-
 _ROSETTE_INFORMATION = DatasetDescriptor(
     splits_to_sizes={
         'train': 240,
         'trainval': 300,
         'val': 60,
-	'test': 148796,
-#	'test': 28,
     },
     num_classes=3,
     ignore_label=255,
 )
 
-_BRAT_INFORMATION = DatasetDescriptor(
+_SENESCENT_INFORMATION = DatasetDescriptor(
     splits_to_sizes={
-        'train': 600,
-        'trainval': 749,
-        'val': 149,
+        'train': 1381,
+        'trainval': 1727,
+        'val': 346,
     },
     num_classes=4,
+    ignore_label=255,
+)
+
+_ANTHO_INFORMATION = DatasetDescriptor(
+    splits_to_sizes={
+        'train': 1263,
+        'trainval': 1579,
+        'val': 316,
+    },
+    num_classes=5,
     ignore_label=255,
 )
 
@@ -123,8 +132,9 @@ _DATASETS_INFORMATION = {
     'cityscapes': _CITYSCAPES_INFORMATION,
     'pascal_voc_seg': _PASCAL_VOC_SEG_INFORMATION,
     'ade20k': _ADE20K_INFORMATION,
-    'ara_rosettes': _ROSETTE_INFORMATION,
-    'BRATset': _BRAT_INFORMATION,
+    'ara_rosetteSet': _ROSETTE_INFORMATION,
+    'ara_senescentSet': _SENESCENT_INFORMATION,
+    'ara_anthoSet': _ANTHO_INFORMATION,
 }
 
 # Default file pattern of TFRecord of TensorFlow Example.
@@ -151,7 +161,7 @@ class Dataset(object):
                max_scale_factor=1.,
                scale_factor_step_size=0,
                model_variant=None,
-               num_readers=1,
+               num_readers=2,
                is_training=False,
                should_shuffle=False,
                should_repeat=False):

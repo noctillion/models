@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+# Modifications Copyright 2020 Patrick Hüther (patrick.huether@gmi.oeaw.ac.at)
+# - increased default num_readers from 2 to 4
+# - added code for between-graph replication on slurm cluster
+
 """Training script for the DeepLab model.
 
 See model.py for more details and usage.

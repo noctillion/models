@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+# Modifications Copyright 2020 Patrick Hüther (patrick.huether@gmi.oeaw.ac.at)
+# - changed default value for eval_scales argument
+# - added addtional evaluation metrics
 """Evaluation script for the DeepLab model.
 
 See model.py for more details and usage.

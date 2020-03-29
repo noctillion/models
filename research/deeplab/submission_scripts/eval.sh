@@ -13,21 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-#
-# This script is used to run local test on ROSETTE dataset. Users could also
-# modify from this script for their use case.
-#
-# Usage:
-#   # From the tensorflow/models/research/deeplab directory.
-#   sh ./local_test.sh
-#
-#
+# Modifications Copyright 2020 Patrick Hüther (patrick.huether@gmi.oeaw.ac.at)
+# - this is a modified version of local_test.sh that was used on a slurm cluster
 
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
+cd ../deeplab
+
 # Move one-level up to tensorflow/models/research directory.
 cd ..
+
+DATASET=${1}
 
 # Update PYTHONPATH.
 export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
@@ -36,42 +33,33 @@ export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
 CURRENT_DIR=$(pwd)
 WORK_DIR="${CURRENT_DIR}/deeplab"
 
-# Run model_test first to make sure the PYTHONPATH is correctly set.
-#python "${WORK_DIR}"/model_test.py -v
-
-# Go to datasets folder and download ROSETTE segmentation dataset.
 DATASET_DIR="datasets"
-cd "${WORK_DIR}/${DATASET_DIR}"
-
-# Go back to original directory.
-cd "${CURRENT_DIR}"
 
 # Set up the working directories.
 ROSETTE_FOLDER="ara_rosetteSet"
-EXP_FOLDER="exp/train_on_xception65_imagenet_multi_gradient"
+EXP_FOLDER="exp/train_on_xception65_imagenet"
 TRAIN_LOGDIR="${WORK_DIR}/${DATASET_DIR}/${ROSETTE_FOLDER}/${EXP_FOLDER}/train"
-VIS_LOGDIR="${WORK_DIR}/${DATASET_DIR}/${ROSETTE_FOLDER}/${EXP_FOLDER}/vis"
-#mkdir -p "${TRAIN_LOGDIR}"
-#mkdir -p "${VIS_LOGDIR}"
+EVAL_LOGDIR="${WORK_DIR}/${DATASET_DIR}/${ROSETTE_FOLDER}/${EXP_FOLDER}/eval"
+mkdir -p "${TRAIN_LOGDIR}"
+mkdir -p "${EVAL_LOGDIR}"
 
+ROSETTE_DATASET="${WORK_DIR}/${DATASET_DIR}/${ROSETTE_FOLDER}/tfrecord"
 
-ROSETTE_DATASET="${WORK_DIR}/${DATASET_DIR}/testdat/shards"
-#ROSETTE_DATASET="${WORK_DIR}/${DATASET_DIR}/results"
-
-# Visualize the results.
-python "${WORK_DIR}"/predict_rosettes.py \
-  --dataset="ara_rosettes" \
+# Run evaluation. This performs eval over the full val split (998 images) and
+# will take a while.
+python "${WORK_DIR}"/eval.py \
+  --dataset="${DATASET}" \
   --logtostderr \
-  --vis_split="test" \
+  --eval_split="val" \
   --model_variant="xception_65" \
   --atrous_rates=12 \
   --atrous_rates=24 \
   --atrous_rates=36 \
   --output_stride=8 \
-  --vis_crop_size="537,561" \
   --decoder_output_stride=4 \
+  --eval_crop_size="537,561" \
   --checkpoint_dir="${TRAIN_LOGDIR}" \
-  --vis_logdir="${ROSETTE_DATASET}" \
+  --eval_logdir="${EVAL_LOGDIR}" \
+  --eval_scales=1.0 \
   --dataset_dir="${ROSETTE_DATASET}" \
-  --add_flipped_images=True \
-  --max_number_of_iterations=1
+  --max_number_of_evaluations=0

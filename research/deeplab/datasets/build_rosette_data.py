@@ -12,15 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+# Modifications Copyright 2020 Patrick Hüther (patrick.huether@gmi.oeaw.ac.at)
+# - this is a modified version of build_voc2012_data.py
 
-"""Converts ara_rosette data to TFRecord file format with Example protos.
+"""Converts ara_rosetteSet data to TFRecord file format with Example protos.
 
 Rosette dataset is expected to have the following directory structure:
 
-  + ara_rosette
+  - datasets
     - build_data.py
     - build_rosette_data.py (current working directory).
-    + ara_rosetteSet
+    + ara_rosetteSet | ara_senescentSet | ara_anthoSet
       + rosettes
         + PNGImages
         + SegmentationClass
@@ -77,9 +79,12 @@ tf.app.flags.DEFINE_string(
     './tfrecord',
     'Path to save converted SSTable of TensorFlow examples.')
 
+tf.app.flags.DEFINE_integer(
+    'shard_number',
+    5,
+    'Number of shards. Ideally results in TFRecord files of roughly 100MB each')
 
-_NUM_SHARDS = 3
-
+_NUM_SHARDS = FLAGS.shard_number
 
 def _convert_dataset(dataset_split):
   """Converts the specified dataset split to TFRecord format.

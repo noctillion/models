@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
+# Modifications Copyright 2020 Patrick Hüther (patrick.huether@gmi.oeaw.ac.at)
+# - added additional datasets for segmentation of plant images
 """Provides data from semantic segmentation datasets.
 
 The SegmentationDataset class provides both images and annotations (semantic
