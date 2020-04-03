@@ -1,10 +1,14 @@
-# This is a fork of https://github.com/tensorflow/models/tree/master/research/deeplab that was used to train on plant rosette images for phenotyping purposes
+## This is a fork of https://github.com/tensorflow/models/tree/master/research/deeplab that was used to train on plant rosette images for phenotyping purposes
+
+# ARADEEPOPSIS, the resulting pipeline for extraction of phenotypic traits from plant rosette images is available [HERE](https://github.com/Gregor-Mendel-Institute/aradeepopsis)
 
 The training datasets are available for download via the following links:
 
-[1 class model](https://www.dropbox.com/s/mwq3q5h6thck8qk/ara_rosetteSet.tar.gz?dl=0)
-[2 class model](https://www.dropbox.com/s/7u16iw5i4q2w8j6/ara_senescentSet.tar.gz?dl=0)
-[3 class model](https://www.dropbox.com/s/vgwbomey2rhfh84/ara_anthoSet.tar.gz?dl=0)
+* [Model A](https://www.dropbox.com/s/mwq3q5h6thck8qk/ara_rosetteSet.tar.gz?dl=0)
+
+* [Model B](https://www.dropbox.com/s/7u16iw5i4q2w8j6/ara_senescentSet.tar.gz?dl=0)
+
+* [Model C](https://www.dropbox.com/s/vgwbomey2rhfh84/ara_anthoSet.tar.gz?dl=0)
 
 This repository includes [submit scripts](submission_scripts/) for training the model on a slurm cluster and [helper scripts](datasets/) to download training datasets and convert them to TFrecords.
 
